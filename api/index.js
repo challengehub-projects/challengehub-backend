@@ -25,5 +25,9 @@ app.get("/", (req, res) => {
   res.json({ message: "API Running 🚀" });
 });
 
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
 /* IMPORTANT (NO app.listen) */
 export default app;
