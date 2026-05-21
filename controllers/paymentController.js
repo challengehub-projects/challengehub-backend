@@ -11,7 +11,7 @@ exports.initializePayment = async (req, res) => {
       {
         email,
         amount: amount * 100, // Paystack uses kobo
-        callback_url: "http://localhost:5173/verify"
+        callback_url: "https://challengehub-testing-5yxs.vercel.app/verify"
       },
       {
         headers: {
