@@ -30,7 +30,7 @@ export const submitExam = async (req, res) => {
 }
 
 /* ✅ GET LEADERBOARD */
-export const getScores = async (req, res) => {
+/*export const getScores = async (req, res) => {
     try {
         const snapshot = await db
             .collection("results")
@@ -49,9 +49,9 @@ export const getScores = async (req, res) => {
     } catch (err) {
         console.log(err); // 👈 IMPORTANT
         res.status(500).json({ message: "Error fetching leaderboard" });
-    }
+    }*/
 };
-/* export const getScores = async (req, res) => {
+ export const getScores = async (req, res) => {
   try {
     const snapshot = await db
       .collection("results")
@@ -71,4 +71,4 @@ export const getScores = async (req, res) => {
     res.status(500).json({ message: "Error fetching leaderboard" });
   }
 }
- */
+ 
