@@ -6,32 +6,48 @@ exports.initializePayment = async (req, res) => {
   try {
     const { email, amount } = req.body;
 
+    console.log(email, amount);
+
+    const payload = {
+      "email": email,
+      "amount": amount * 100, // convert Naira -> Kobo ONCE
+      "callback_url": "http://localhost:5173/verify",
+    }
+
+    console.log(process.env.PAYSTACK_SECRET_KEY);
+
     const response = await axios.post(
       "https://api.paystack.co/transaction/initialize",
-      {
-        email,
-        amount: amount * 100, // Paystack uses kobo
-        callback_url: "https://challengehub-testing-5yxs.vercel.app/verify"
-      },
+
+      payload,
+
       {
         headers: {
-          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_kEY}`,
+          Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
           "Content-Type": "application/json",
         },
       }
     );
 
+    console.log(payload.callback_url)
 
     return res.json({
-      authorization_url: response.data.data.authorization_url,
-      reference: response.data.data.reference,
+      authorization_url:
+        response.data.data.authorization_url,
+      reference:
+        response.data.data.reference,
+      response: response.data,
     });
   } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ error: "Payment init failed" });
+    console.error(
+      error.response?.data || error.message
+    );
+
+    res.status(500).json({
+      error: "Payment initialization failed",
+    });
   }
 };
-
 
 
 // VERIFY PAYMENT
@@ -39,7 +55,7 @@ exports.verifyPayment = async (req, res) => {
   try {
     const { reference, uid } = req.body;
 
-    console.log(reference, uid);
+    console.log("Verifying payment for reference:", reference, "and user ID:", uid);
 
     const response = await axios.get(
       `https://api.paystack.co/transaction/verify/${reference}`,
@@ -50,22 +66,58 @@ exports.verifyPayment = async (req, res) => {
       }
     );
 
-    const data = response.data.data;
+    const payment =
+      response.data.data;
 
+    console.log(
+      "Paystack Status:",
+      payment.status
+    );
 
-    if (data.status === "ongoing" || data.status === "false") {
-      // ✅ Update Firebase
-      await admin.firestore().collection("users").doc(uid).update({
-        paymentStatus: "unpaid",
-        paymentReference: reference,
+    if (
+      payment.status ===
+      "success"
+    ) {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(uid)
+        .update({
+          paymentStatus: "paid",
+          paymentReference:
+            reference,
+        });
+
+      return res.json({
+        success: true,
+        status: "success",
       });
-
-      return res.json({ success: true,  message: "Payment verified & updated" });
     }
 
-    return res.status(400).json({ error: "Payment not successful" });
+    await admin
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .update({
+        paymentStatus: "unpaid",
+        paymentReference:
+          reference,
+      });
+
+    return res.json({
+      success: false,
+      status:
+        payment.status,
+    });
   } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ error: "Verification failed" });
+    console.error(
+      error.response?.data ||
+      error.message
+    );
+
+    res.status(500).json({
+      error:
+        "Verification failed",
+    });
   }
 };

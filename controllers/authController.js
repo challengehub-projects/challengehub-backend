@@ -1,4 +1,4 @@
-import axios from "axios";
+  import axios from "axios";
 import { admin, db, auth } from "../config/firebase.js";
 import dotenv from "dotenv";
 import express from "express";
@@ -241,6 +241,75 @@ export const updateAccount = async (req, res) => {
     const {
       email,
       surname,
+      otherNames,
+      phone,
+      state,
+      lga,
+      school,
+      category,
+      profilePic, 
+    } = req.body;
+
+    console.log("BODY RECEIVED:", email, surname, otherNames, phone, state, lga, school, category, profilePic);
+
+    // 🔹 Firebase Auth update
+    const authUpdateData = {};
+
+    if (email) authUpdateData.email = email;
+    if (profilePic) authUpdateData.photoURL = profilePic;
+
+    // NOTE: Removed phoneNumber from Auth to prevent strict international formatting crashes.
+    // The phone number remains 100% safe and tracked inside your Firestore collection below.
+
+    if (Object.keys(authUpdateData).length > 0) {
+      await admin.auth().updateUser(uid, authUpdateData);
+    }
+
+    // 🔹 Firestore update
+    const firestoreData = {};
+
+    if (email) firestoreData.email = email;
+    if (surname) firestoreData.surname = surname;
+    if (otherNames) firestoreData.otherNames = otherNames;
+    if (phone) firestoreData.phone = phone; // Safely saved in Firestore
+    if (state) firestoreData.state = state;
+    if (lga) firestoreData.lga = lga;
+    if (school) firestoreData.school = school;
+    if (category) firestoreData.category = category;
+    if (profilePic) firestoreData.profilePic = profilePic; 
+
+    firestoreData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
+
+    if (Object.keys(firestoreData).length > 0) {
+      await admin
+        .firestore()
+        .collection("users")
+        .doc(uid)
+        .set(firestoreData, { merge: true });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Account updated successfully",
+    });
+
+  } catch (err) {
+    console.error("UPDATE ERROR:", err);
+    return res.status(500).json({
+      success: false,
+      error: err.message || "Failed to update account",
+    });
+  }
+};
+
+
+/* export const updateAccount = async (req, res) => {
+  try {
+    const uid = req.user.uid;
+
+    const {
+      email,
+      surname,
       othernames,
       phone,
       state,
@@ -303,7 +372,7 @@ export const updateAccount = async (req, res) => {
     });
   }
 };
-
+ */
 
 // DELETE ACCOUNT
 export const deleteAccount = async (req, res) => {

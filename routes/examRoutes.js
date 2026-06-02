@@ -7,4 +7,6 @@ const router = express.Router();
 router.post("/submit", submitExam);
 router.get("/leaderboard", getScores);
 
+
+
 export default router;
