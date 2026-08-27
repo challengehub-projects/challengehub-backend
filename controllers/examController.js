@@ -5,6 +5,8 @@ export const submitExam = async (req, res) => {
     try {
         const { name, email, score, total, timeUsed } = req.body;
 
+        console.log(name, email, score, total, timeUsed)
+
         if (!name || !email) {
             return res.status(400).json({ message: "Missing fields" });
         }

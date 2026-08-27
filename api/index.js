@@ -20,6 +20,7 @@ app.use("/api", dashboardRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api/exam", examRoutes);
 
+
 /* TEST ROUTE */
 app.get("/", (req, res) => {
   res.json({ message: "API Running 🚀" });
