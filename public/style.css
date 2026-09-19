@@ -1,0 +1,32 @@
+body {
+  font-family: Arial;
+  padding: 20px;
+}
+
+.container, .question {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 20px;
+  background: #fff;
+  border-radius: 6px;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-buttons {
+  margin-top: 20px;
+}
+
+#confirmBox {
+  position: fixed;
+  top: 30%;
+  left: 35%;
+  background: white;
+  border: 2px solid #444;
+  padding: 20px;
+  z-index: 999;
+}
